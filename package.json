@@ -1,0 +1,47 @@
+{
+  "name": "goal-opencode",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Long-running goal mode for OpenCode with auto-continuation, auto-clear on completion, and a goal sidebar widget",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tui": "./src/tui.tsx"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "plugin",
+    "goal",
+    "sidebar",
+    "tui"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martsallan/goal-opencode.git"
+  },
+  "homepage": "https://github.com/martsallan/goal-opencode#readme",
+  "bugs": {
+    "url": "https://github.com/martsallan/goal-opencode/issues"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.15.0",
+    "@opencode-ai/sdk": "^1.15.0",
+    "@opentui/core": "^0.2.10",
+    "@opentui/solid": "^0.2.10",
+    "solid-js": "1.9.12"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "typescript": "^5.9.3"
+  }
+}
