@@ -18,13 +18,13 @@ Codex-style long-running goal mode for [OpenCode](https://opencode.ai), with a s
 Install locally for the current OpenCode project:
 
 ```bash
-opencode plugin goal-opencode
+opencode plugin @martsallan/goal-opencode
 ```
 
 Install globally:
 
 ```bash
-opencode plugin -g goal-opencode
+opencode plugin -g @martsallan/goal-opencode
 ```
 
 OpenCode detects both package entrypoints and writes the plugin into the server and TUI config targets.
@@ -37,7 +37,7 @@ If you configure it manually, add the package to both config files.
 
 ```jsonc
 {
-  "plugin": ["goal-opencode"]
+  "plugin": ["@martsallan/goal-opencode"]
 }
 ```
 
@@ -45,7 +45,7 @@ If you configure it manually, add the package to both config files.
 
 ```jsonc
 {
-  "plugin": ["goal-opencode"]
+  "plugin": ["@martsallan/goal-opencode"]
 }
 ```
 
