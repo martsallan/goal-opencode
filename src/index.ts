@@ -54,9 +54,15 @@ function parseGoalState(sessionID: string, value: unknown): GoalState | undefine
   const validReason = pauseReason === "interrupt" || pauseReason === "command" ? pauseReason : undefined
   if (status !== "paused" && validReason) return invalid("non-paused goal carries a pauseReason")
 
-  return validReason
-    ? { objective, status, createdAt, updatedAt, activeStartedAt, timeUsedSeconds, pauseReason: validReason }
-    : { objective, status, createdAt, updatedAt, activeStartedAt, timeUsedSeconds }
+  const base: GoalState = {
+    objective,
+    status: status as GoalState["status"],
+    createdAt: createdAt as number,
+    updatedAt: updatedAt as number,
+    activeStartedAt: activeStartedAt as number | null,
+    timeUsedSeconds: timeUsedSeconds as number,
+  }
+  return validReason ? { ...base, pauseReason: validReason } : base
 }
 
 async function loadGoals(stateFile: string, now = Date.now()): Promise<Map<string, GoalState>> {
