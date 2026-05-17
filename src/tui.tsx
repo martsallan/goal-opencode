@@ -6,7 +6,7 @@ import { homedir } from "node:os"
 import { join } from "node:path"
 
 // ──────────────────────────────────────────────
-// Sidebar visual do plugin goal-opencode
+// Sidebar widget for the goal-opencode plugin.
 // state file: $XDG_STATE_HOME/goal-opencode/scope_<sha256-16>/sessions.json
 // shape:      { [sessionID]: GoalState }
 // ──────────────────────────────────────────────
@@ -65,22 +65,22 @@ function formatDuration(seconds: number): string {
 }
 
 const STATUS_LABEL: Record<GoalStatus, string> = {
-  active: "Ativo",
-  paused: "Pausado",
-  complete: "Concluído",
+  active: "Active",
+  paused: "Paused",
+  complete: "Complete",
 }
 
 function statusLine(g: GoalState): string {
   if (g.status === "paused") {
-    if (g.pauseReason === "interrupt") return "Pausado (interrompido — próxima msg retoma)"
-    if (g.pauseReason === "command") return "Pausado (manual)"
-    return "Pausado"
+    if (g.pauseReason === "interrupt") return "Paused (interrupted — next message resumes)"
+    if (g.pauseReason === "command") return "Paused (manual)"
+    return "Paused"
   }
   return STATUS_LABEL[g.status]
 }
 
 // ──────────────────────────────────────────────
-// Componente da sidebar
+// Sidebar component
 // ──────────────────────────────────────────────
 function GoalSidebar(props: { api: TuiPluginApi; sessionID: string }) {
   const theme = () => props.api.theme.current
@@ -138,7 +138,7 @@ function GoalSidebar(props: { api: TuiPluginApi; sessionID: string }) {
 }
 
 // ──────────────────────────────────────────────
-// Plugin TUI principal
+// Main TUI plugin
 // ──────────────────────────────────────────────
 const tui: TuiPlugin = async (api, _options, _meta) => {
   api.slots.register({
@@ -158,7 +158,7 @@ const tui: TuiPlugin = async (api, _options, _meta) => {
         title: "Goal",
         value: "goal.show",
         category: "Goal",
-        description: "Ver objetivo e status da sessão atual",
+        description: "Show the active goal for the current session",
         onSelect: () => {
           const route = api.route.current
           let sid: string | undefined
@@ -170,7 +170,7 @@ const tui: TuiPlugin = async (api, _options, _meta) => {
           const goals = readStateSync(stateFile)
           const goal = goals[sid]
           if (!goal) {
-            api.ui.toast({ title: "Goal", message: "Nenhum goal definido nesta sessão.", variant: "info", duration: 3000 })
+            api.ui.toast({ title: "Goal", message: "No goal set for this session.", variant: "info", duration: 3000 })
             return
           }
           api.ui.dialog.setSize("large")
@@ -183,7 +183,7 @@ const tui: TuiPlugin = async (api, _options, _meta) => {
                 Status: {statusLine(goal)}
               </text>
               <text fg={api.theme.current.textMuted}>
-                Tempo: {formatDuration(goal.timeUsedSeconds)}
+                Time: {formatDuration(goal.timeUsedSeconds)}
               </text>
             </box>
           ))
@@ -195,7 +195,7 @@ const tui: TuiPlugin = async (api, _options, _meta) => {
   }
 }
 
-// Plugin module shape exigida pelo opencode TUI loader
+// Plugin module shape required by the OpenCode TUI loader
 const tuiModule: TuiPluginModule = {
   id: "goal-opencode.tui",
   tui,

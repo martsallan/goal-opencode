@@ -86,8 +86,8 @@ The same package exposes the server plugin (`.`) and the TUI sidebar plugin (`./
 
 | Situation | Result |
 | --- | --- |
-| Esc / Ctrl+C while model is replying | Goal → `paused (interrompido)`. Sidebar reflects it. Next user message auto-resumes. |
-| Plugin (re)load with a goal still `active` | Treated as a crashed previous session: demoted to `paused (interrompido)`. Same auto-resume rule applies. |
+| Esc / Ctrl+C while model is replying | Goal → `paused (interrupted)`. Sidebar reflects it. Next user message auto-resumes. |
+| Plugin (re)load with a goal still `active` | Treated as a crashed previous session: demoted to `paused (interrupted)`. Same auto-resume rule applies. |
 | `/goal pause` (manual) | Goal → `paused (manual)`. Requires `/goal resume`, no auto-resume. |
 | 3 consecutive idle continuations | Goal auto-paused as `manual`. Toast: `Goal stalled after 3 idle continuations — paused. Use /goal resume to retry.` |
 | Model emits `::GOAL_DONE::` after `update_goal` | Goal cleared silently. |
@@ -110,7 +110,7 @@ The TUI plugin renders a panel for the current session showing:
 - Status (Active / Paused / Complete)
 - Elapsed time, ticking every second while active
 
-The status line carries the pause reason when relevant: `Pausado (interrompido — próxima msg retoma)` or `Pausado (manual)`.
+The status line carries the pause reason when relevant: `Paused (interrupted — next message resumes)` or `Paused (manual)`.
 
 Open the command palette and run `Goal` for a larger dialog with the same fields.
 
