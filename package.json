@@ -1,6 +1,6 @@
 {
   "name": "@martsallan/goal-opencode",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Long-running goal mode for OpenCode with auto-continuation, auto-clear on completion, and a goal sidebar widget",
   "main": "./src/index.ts",
