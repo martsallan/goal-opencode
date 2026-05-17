@@ -1,5 +1,10 @@
 # goal-opencode
 
+[![npm version](https://img.shields.io/npm/v/@martsallan/goal-opencode.svg)](https://www.npmjs.com/package/@martsallan/goal-opencode)
+[![npm downloads](https://img.shields.io/npm/dm/@martsallan/goal-opencode.svg)](https://www.npmjs.com/package/@martsallan/goal-opencode)
+[![CI](https://github.com/martsallan/goal-opencode/actions/workflows/ci.yml/badge.svg)](https://github.com/martsallan/goal-opencode/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Codex-style long-running goal mode for [OpenCode](https://opencode.ai), with a sidebar widget that surfaces the active goal in the TUI.
 
 ## Features
@@ -10,6 +15,20 @@ Codex-style long-running goal mode for [OpenCode](https://opencode.ai), with a s
 - Interrupt-aware: pressing **Esc** while the model is responding pauses the goal and freezes auto-continuation. The next user message resumes it.
 - Hard cap: 3 consecutive idle continuations auto-pause the goal so it does not loop forever.
 - Per-worktree state, persisted to disk. Goals survive restarts.
+
+---
+
+## How It Works
+
+When you set a goal with `/goal <objective>`, the plugin enters a continuation loop:
+
+1. **Goal injection**: every model turn receives the objective as system context, so the model stays anchored to it across long sessions.
+2. **Auto-continuation**: after each model reply, the plugin checks whether progress was made. If the model stops without finishing, the plugin sends a continuation prompt automatically.
+3. **Completion detection**: the model has access to an `update_goal({ status: "complete" })` tool. Once called and followed by the `::GOAL_DONE::` marker, the goal is cleared silently.
+4. **Interrupt handling**: pressing Esc pauses the goal as `interrupted`. Your next message resumes it. Use `/goal pause` for a manual pause that requires `/goal resume`.
+5. **Stagnation guard**: 3 consecutive idle continuations auto-pause the goal so it never loops forever.
+
+State is persisted per-worktree, so goals survive crashes, restarts, and TUI reloads.
 
 ---
 
