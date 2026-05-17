@@ -15,55 +15,39 @@ Codex-style long-running goal mode for [OpenCode](https://opencode.ai), with a s
 
 ## Install
 
-### From npm (once published)
-
-```jsonc
-// ~/.config/opencode/opencode.json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "goal-opencode"
-  ]
-}
-```
-
-```jsonc
-// ~/.config/opencode/tui.json
-{
-  "$schema": "https://opencode.ai/tui.json",
-  "plugin": [
-    "goal-opencode"
-  ]
-}
-```
-
-OpenCode installs npm packages on the next start. Restart the TUI and the plugin is live.
-
-### From source (recommended while iterating)
+Install locally for the current OpenCode project:
 
 ```bash
-git clone https://github.com/martsallan/goal-opencode.git ~/Projetos/goal-opencode
-cd ~/Projetos/goal-opencode
-npm install
+opencode plugin goal-opencode
 ```
 
-Then point both configs to the absolute path:
+Install globally:
+
+```bash
+opencode plugin -g goal-opencode
+```
+
+OpenCode detects both package entrypoints and writes the plugin into the server and TUI config targets.
+
+### Manual Config
+
+If you configure it manually, add the package to both config files.
+
+`opencode.json`:
 
 ```jsonc
-// opencode.json
 {
-  "plugin": ["/home/<user>/Projetos/goal-opencode"]
+  "plugin": ["goal-opencode"]
 }
 ```
 
+`tui.json`:
+
 ```jsonc
-// tui.json
 {
-  "plugin": ["/home/<user>/Projetos/goal-opencode"]
+  "plugin": ["goal-opencode"]
 }
 ```
-
-The same package exposes the server plugin (`.`) and the TUI sidebar plugin (`./tui`). OpenCode auto-resolves the right entry per loader.
 
 ---
 
