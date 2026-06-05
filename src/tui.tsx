@@ -152,43 +152,67 @@ const tui: TuiPlugin = async (api, _options, _meta) => {
     },
   })
 
-  if (api.command) {
+  // Opens the goal dialog for the active session. Shared by the modern keymap
+  // command layer and the legacy api.command fallback below.
+  const showGoalDialog = () => {
+    const route = api.route.current
+    let sid: string | undefined
+    if (route.name === "session") {
+      sid = typeof route.params?.sessionID === "string" ? route.params.sessionID : undefined
+    }
+    if (!sid) return
+    const stateFile = resolveStateFile(api)
+    const goals = readStateSync(stateFile)
+    const goal = goals[sid]
+    if (!goal) {
+      api.ui.toast({ title: "Goal", message: "No goal set for this session.", variant: "info", duration: 3000 })
+      return
+    }
+    api.ui.dialog.setSize("large")
+    api.ui.dialog.replace(() => (
+      <box flexDirection="column">
+        <text fg={api.theme.current.primary}>
+          <b>🎯 {goal.objective}</b>
+        </text>
+        <text fg={api.theme.current.textMuted}>
+          Status: {statusLine(goal)}
+        </text>
+        <text fg={api.theme.current.textMuted}>
+          Time: {formatDuration(goal.timeUsedSeconds)}
+        </text>
+      </box>
+    ))
+    setTimeout(() => api.ui.dialog.clear(), 8000)
+  }
+
+  // Prefer the modern keymap command layer (OpenCode >= 1.16). Fall back to the
+  // deprecated api.command bridge so the plugin still works on older hosts.
+  const keymap = api.keymap as { registerLayer?: (layer: unknown) => () => void } | undefined
+  if (typeof keymap?.registerLayer === "function") {
+    const dispose = keymap.registerLayer({
+      commands: [
+        {
+          name: "goal.show",
+          title: "Goal",
+          category: "Goal",
+          description: "Show the active goal for the current session",
+          namespace: "palette",
+          enabled: () => api.route.current.name === "session",
+          run: () => {
+            showGoalDialog()
+          },
+        },
+      ],
+    })
+    api.lifecycle.onDispose(dispose)
+  } else if (api.command) {
     const dispose = api.command.register(() => [
       {
         title: "Goal",
         value: "goal.show",
         category: "Goal",
         description: "Show the active goal for the current session",
-        onSelect: () => {
-          const route = api.route.current
-          let sid: string | undefined
-          if (route.name === "session") {
-            sid = typeof route.params?.sessionID === "string" ? route.params.sessionID : undefined
-          }
-          if (!sid) return
-          const stateFile = resolveStateFile(api)
-          const goals = readStateSync(stateFile)
-          const goal = goals[sid]
-          if (!goal) {
-            api.ui.toast({ title: "Goal", message: "No goal set for this session.", variant: "info", duration: 3000 })
-            return
-          }
-          api.ui.dialog.setSize("large")
-          api.ui.dialog.replace(() => (
-            <box flexDirection="column">
-              <text fg={api.theme.current.primary}>
-                <b>🎯 {goal.objective}</b>
-              </text>
-              <text fg={api.theme.current.textMuted}>
-                Status: {statusLine(goal)}
-              </text>
-              <text fg={api.theme.current.textMuted}>
-                Time: {formatDuration(goal.timeUsedSeconds)}
-              </text>
-            </box>
-          ))
-          setTimeout(() => api.ui.dialog.clear(), 8000)
-        },
+        onSelect: () => showGoalDialog(),
       },
     ])
     api.lifecycle.onDispose(dispose)

@@ -14,6 +14,7 @@ Codex-style long-running goal mode for [OpenCode](https://opencode.ai), with a s
 - Auto-clear on completion: when the model emits `::GOAL_DONE::` after `update_goal` succeeds, the goal is cleared silently and continuation stops.
 - Interrupt-aware: pressing **Esc** while the model is responding pauses the goal and freezes auto-continuation. The next user message resumes it.
 - Hard cap: 3 consecutive idle continuations auto-pause the goal so it does not loop forever.
+- Compaction-aware: the active objective and completion protocol are re-injected into the compaction prompt, so goals survive context compaction on long sessions.
 - Per-worktree state, persisted to disk. Goals survive restarts.
 
 ---
@@ -33,6 +34,8 @@ State is persisted per-worktree, so goals survive crashes, restarts, and TUI rel
 ---
 
 ## Install
+
+> Requires OpenCode **>= 1.16** (built against `@opencode-ai/plugin` 1.16.x and `@opentui/*` 0.3.x). For older OpenCode releases, pin `@martsallan/goal-opencode@0.2.4`.
 
 Install locally for the current OpenCode project:
 

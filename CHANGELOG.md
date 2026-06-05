@@ -5,7 +5,21 @@ All notable changes to `@martsallan/goal-opencode` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.4] - 2026-05-17
+## [0.3.0] - 2026-06-05
+
+### Changed
+- Bumped `@opencode-ai/plugin` and `@opencode-ai/sdk` to `^1.16.2` to track current OpenCode releases.
+- Moved `@opentui/*` and `solid-js` to `peerDependencies` (`>=0.3.2`), matching how the OpenCode TUI host provides these at runtime. Pinned dev copies (`@opentui/core`, `@opentui/keymap`, `@opentui/solid` `0.3.2`) keep `tsc` and tests reproducible.
+- Migrated the command-palette entry from the deprecated `api.command.register` to `api.keymap.registerLayer`. The legacy bridge is kept as a fallback so the plugin still loads on older hosts.
+
+### Added
+- `experimental.session.compacting` hook: re-injects the active objective, elapsed time, and completion protocol into the compaction prompt so long-running goals survive context compaction.
+- `experimental.text.complete` hook: detects the `::GOAL_DONE::` marker on the streamed reply, letting auto-clear skip the extra message fetch when the marker is already seen.
+- `@opentui/keymap` dependency, now required by `@opencode-ai/plugin >= 1.16`.
+- Unit test suite for `src/core.ts` (`bun test`, 24 cases) covering command parsing, time accounting, prompt rendering, and XML escaping.
+- CI `test` job running `bun test` alongside the existing typecheck.
+
+
 
 ### Added
 - README badges (npm version, downloads, CI status, license).
@@ -57,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command palette `Goal` dialog with the same data in a larger panel.
 - `update_goal` tool exposed to the model for explicit completion signaling.
 
+[0.3.0]: https://github.com/martsallan/goal-opencode/releases/tag/v0.3.0
 [0.2.4]: https://github.com/martsallan/goal-opencode/releases/tag/v0.2.4
 [0.2.3]: https://github.com/martsallan/goal-opencode/releases/tag/v0.2.3
 [0.2.2]: https://github.com/martsallan/goal-opencode/releases/tag/v0.2.2

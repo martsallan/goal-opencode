@@ -282,6 +282,10 @@ export const GoalOpencodePlugin: Plugin = async ({ client, directory, worktree }
   // Sessions whose last finish was a user interrupt. Blocks any auto-
   // continuation until the user types something themselves.
   const interruptedSessions = new Set<string>()
+  // Sessions where experimental.text.complete already observed the
+  // ::GOAL_DONE:: marker in the streamed reply, so message.updated can clear
+  // the goal without a follow-up message fetch.
+  const doneMarkerSeen = new Set<string>()
 
   const toast = (message: string, variant: "info" | "error" = "info", duration = 5000) =>
     client.tui.showToast({ body: { message, variant, duration } }).catch(() => undefined)
@@ -324,6 +328,7 @@ export const GoalOpencodePlugin: Plugin = async ({ client, directory, worktree }
   const resetContinuationState = (sessionID: string) => {
     clearContinuation(sessionID)
     stagnantStops.delete(sessionID)
+    doneMarkerSeen.delete(sessionID)
   }
 
   const applyContinuationEffect = async (sessionID: string, effect: ContinuationEffect) => {
@@ -647,6 +652,19 @@ export const GoalOpencodePlugin: Plugin = async ({ client, directory, worktree }
         if (info.role === "assistant" && info.finish === "stop" && sessionID) {
           const goal = getGoal(sessionID)
           if (goal && goal.status === "active") {
+            const clearForDone = async () => {
+              const result = await mutate(sessionID, { kind: "clear" })
+              clearContinuation(sessionID)
+              if (result.ok) await toast("Goal auto-cleared (GOAL_DONE detected)")
+            }
+
+            // Fast path: experimental.text.complete already saw the marker on
+            // the stream, so skip the extra message fetch entirely.
+            if (doneMarkerSeen.delete(sessionID)) {
+              await clearForDone()
+              return
+            }
+
             try {
               const messageID = typeof info.id === "string" ? info.id : undefined
               if (messageID) {
@@ -656,11 +674,7 @@ export const GoalOpencodePlugin: Plugin = async ({ client, directory, worktree }
                 const parts: Part[] = resp?.parts ?? resp?.data?.parts ?? []
                 const fullText = parts.filter(isTextPart).map((p) => p.text).join("\n")
                 if (fullText.includes(GOAL_DONE_MARKER)) {
-                  const result = await mutate(sessionID, { kind: "clear" })
-                  clearContinuation(sessionID)
-                  if (result.ok) {
-                    await toast("Goal auto-cleared (GOAL_DONE detected)")
-                  }
+                  await clearForDone()
                   return
                 }
               }
@@ -836,6 +850,44 @@ export const GoalOpencodePlugin: Plugin = async ({ client, directory, worktree }
       }
 
       output.messages = messages.filter((message) => !hidden.has(messageIDOf(message)) || injectedMessages.has(messageIDOf(message)))
+    },
+
+    // Cheap, stream-time detection of the ::GOAL_DONE:: marker. When present,
+    // record it so the message.updated handler can clear the goal without an
+    // extra round-trip to fetch the finished message's parts.
+    "experimental.text.complete": async (input, output) => {
+      const sessionID = typeof input.sessionID === "string" ? input.sessionID : undefined
+      if (!sessionID) return
+      const goal = getGoal(sessionID)
+      if (!goal || goal.status !== "active") return
+      if (typeof output.text === "string" && output.text.includes(GOAL_DONE_MARKER)) {
+        doneMarkerSeen.add(sessionID)
+      }
+    },
+
+    // Keep the goal anchored across context compaction. Long-running goals
+    // routinely outlast a single context window, so the objective and the
+    // completion protocol must survive the summary or the model loses the
+    // thread it is supposed to pursue.
+    "experimental.session.compacting": async (input, output) => {
+      const sessionID = typeof input.sessionID === "string" ? input.sessionID : undefined
+      if (!sessionID) return
+      const goal = getGoal(sessionID)
+      if (!goal || goal.status !== "active") return
+
+      output.context.push(
+        [
+          "## Active goal (goal-opencode)",
+          "A long-running goal is in effect. Preserve it across compaction.",
+          "",
+          "Objective:",
+          goal.objective,
+          "",
+          `Time already spent pursuing this goal: ${formatElapsed(accounted(goal).timeUsedSeconds)}.`,
+          "Keep taking concrete actions toward the objective. Only stop without tool",
+          `use after update_goal({ status: "complete" }) succeeds, then emit ${GOAL_DONE_MARKER} on the final line.`,
+        ].join("\n"),
+      )
     },
   }
 }
