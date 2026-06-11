@@ -5,6 +5,12 @@ All notable changes to `@martsallan/goal-opencode` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-06-11
+
+### Changed
+- Bumped `@opencode-ai/plugin` and `@opencode-ai/sdk` to `^1.17.3` to track current OpenCode releases.
+- Raised the `@opentui/*` peer floor to `>=0.3.4` (matching `@opencode-ai/plugin` 1.17.x) and pinned dev copies to `0.4.0`. No source changes were required — the plugin and TUI hook surface is unchanged across 1.16 → 1.17.
+
 ## [0.3.0] - 2026-06-05
 
 ### Changed
@@ -71,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Command palette `Goal` dialog with the same data in a larger panel.
 - `update_goal` tool exposed to the model for explicit completion signaling.
 
+[0.3.1]: https://github.com/martsallan/goal-opencode/releases/tag/v0.3.1
 [0.3.0]: https://github.com/martsallan/goal-opencode/releases/tag/v0.3.0
 [0.2.4]: https://github.com/martsallan/goal-opencode/releases/tag/v0.2.4
 [0.2.3]: https://github.com/martsallan/goal-opencode/releases/tag/v0.2.3

@@ -35,7 +35,7 @@ State is persisted per-worktree, so goals survive crashes, restarts, and TUI rel
 
 ## Install
 
-> Requires OpenCode **>= 1.16** (built against `@opencode-ai/plugin` 1.16.x and `@opentui/*` 0.3.x). For older OpenCode releases, pin `@martsallan/goal-opencode@0.2.4`.
+> Requires OpenCode **>= 1.16** (built against `@opencode-ai/plugin` 1.17.x and `@opentui/*` 0.3.4+/0.4.x). For older OpenCode releases, pin `@martsallan/goal-opencode@0.2.4`.
 
 Install locally for the current OpenCode project:
 
